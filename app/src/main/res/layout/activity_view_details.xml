@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+android:layout_width="match_parent"
+android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/textViewHeading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Contacts"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="40sp"
+        android:textStyle="bold"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="50dp"/>
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/thumbnailIv"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:layout_marginTop="96dp"
+        android:src="@drawable/ic_person"
+        app:tint="?attr/colorOnSurface"
+        />
+
+    <TextView
+        android:id="@+id/contactNameTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/thumbnailIv"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:layout_marginTop="8dp"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/contactNameTextView"
+        android:layout_marginTop="16dp"/>
+
+    <TextView
+        android:id="@+id/nameTextView"
+        android:layout_width="72dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="33dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="9dp"
+        android:textSize="23sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/numberTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="33dp"
+        android:layout_marginTop="300dp"
+        android:text="Contact Number"
+        android:textSize="23sp"
+        />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/buttonEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="80dp"
+        android:layout_marginTop="420dp"
+        android:src="@drawable/ic_edit"
+        android:text="Edit"
+        android:contentDescription="Edit Contact" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/buttonphone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="270dp"
+        android:layout_marginTop="290dp"
+        android:contentDescription="phone Contact"
+        android:src="@drawable/ic_phone"
+        android:text="Phone" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/buttonshare"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="260dp"
+        android:layout_marginTop="50dp"
+        android:contentDescription="phone share"
+        android:src="@drawable/ic_share"
+        android:text="share" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/buttonmessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="155dp"
+        android:layout_marginTop="420dp"
+        android:contentDescription="message Contact"
+        android:src="@drawable/ic_message"
+        android:text="message" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/buttonDelete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="230dp"
+        android:layout_marginTop="420dp"
+        android:src="@drawable/ic_delete"
+        android:text="Edit"
+        android:contentDescription="delete Contact" />
+
+
+
+</RelativeLayout>
+
