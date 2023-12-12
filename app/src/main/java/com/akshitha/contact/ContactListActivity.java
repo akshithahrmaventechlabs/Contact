@@ -97,7 +97,7 @@ public class ContactListActivity extends AppCompatActivity implements ContactAda
             @Override
             public boolean onQueryTextChange(String newText) {
                 // Filter the adapter when text changes in the search bar
-                contactAdapter.getFilter().filter(newText);
+                contactAdapter.getFilter().filter(newText);//getFilter method is used in adapter
                 return false;
             }
         });
@@ -106,6 +106,9 @@ public class ContactListActivity extends AppCompatActivity implements ContactAda
     private void showLogoutConfirmation() {
         Snackbar.make(findViewById(android.R.id.content),
                         "Are you sure you want to log out?",
+//Snackbars provide lightweight feedback about an operation.
+// They show a brief message at the bottom of the screen on mobile and lower left on larger devices.
+// Snackbars appear above all other elements on screen and only one can be displayed at a time.
                         Snackbar.LENGTH_LONG)
                 .setAction("Logout", new View.OnClickListener() {
                     @Override
@@ -264,9 +267,9 @@ public class ContactListActivity extends AppCompatActivity implements ContactAda
 
 
 
-
 //
-////roomdata code
+////
+//////roomdata code
 //package com.akshitha.contact;
 //
 //import android.content.Intent;
@@ -455,6 +458,6 @@ public class ContactListActivity extends AppCompatActivity implements ContactAda
 //        return -1; // Return -1 if the contact is not found
 //    }
 //}
-
-
-
+//
+//
+//
