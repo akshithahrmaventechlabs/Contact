@@ -1,12 +1,18 @@
 package com.akshitha.contact;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -15,9 +21,14 @@ public class ViewDetailsActivity extends AppCompatActivity {
     private FloatingActionButton buttonDelete;
     private Contact contact;
     private FloatingActionButton buttonEdit;
+    private FloatingActionButton callBtn;
 
-    // Request code for editing contact
-    private static final int REQUEST_EDIT_CONTACT_CODE = 2;
+    private FloatingActionButton shareBtn;
+
+
+    private static final int PERMISSION_CODE = 100;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +55,53 @@ public class ViewDetailsActivity extends AppCompatActivity {
 
         buttonEdit = findViewById(R.id.buttonEdit);
         buttonEdit.setOnClickListener(view -> editContact());
+
+        callBtn = findViewById(R.id.buttonphone);
+        callBtn.setOnClickListener(v -> makePhoneCall());
+
+
+        shareBtn = findViewById(R.id.buttonshare);
+        shareBtn.setOnClickListener(v -> shareContact());
+
+        FloatingActionButton messageBtn = findViewById(R.id.buttonmessage);
+        messageBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendMessage();
+            }
+        });
+    }
+
+
+
+
+    private void sendMessage() {
+        // Get the contact's phone number
+        String phoneNumber = ((TextView) findViewById(R.id.numberTextView)).getText().toString();
+
+        // Create an intent to open the messaging app
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("sms:" + phoneNumber));
+        intent.putExtra("sms_body", "Hello, let's chat!"); // Optional: Set a default message
+
+        try {
+            startActivity(intent);
+        } catch (Exception e) {
+            // Handle exception if there's no messaging app installed
+            showToast("No messaging app installed.");
+        }
+    }
+
+    private void shareContact() {
+        String contactName = ((TextView) findViewById(R.id.contactNameTextView)).getText().toString();
+        String contactNumber = ((TextView) findViewById(R.id.numberTextView)).getText().toString();
+
+        String shareMessage = "Contact: " + contactName + "\nNumber: " + contactNumber;
+
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage);
+
+        startActivity(Intent.createChooser(shareIntent, "Share contact details"));
     }
 
     private void deleteContact() {
@@ -73,7 +131,29 @@ public class ViewDetailsActivity extends AppCompatActivity {
         intent.putExtra("CONTACT_NUMBER", contact.getPhoneNumber());
 
         // Start the EditContactActivity and wait for the result
-        startActivityForResult(intent, REQUEST_EDIT_CONTACT_CODE);
+        startActivityForResult(intent, 2);
+    }
+
+    private void makePhoneCall() {
+        if (ContextCompat.checkSelfPermission(ViewDetailsActivity.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            // Check if the user has previously denied the permission
+            if (ActivityCompat.shouldShowRequestPermissionRationale(ViewDetailsActivity.this, Manifest.permission.CALL_PHONE)) {
+                // Explain to the user why the app needs the CALL_PHONE permission
+                showToast("This app requires the CALL_PHONE permission to make phone calls.");
+
+                // Now request the permission
+                ActivityCompat.requestPermissions(ViewDetailsActivity.this, new String[]{Manifest.permission.CALL_PHONE}, PERMISSION_CODE);
+            } else {
+                // Request the permission without explanation
+                ActivityCompat.requestPermissions(ViewDetailsActivity.this, new String[]{Manifest.permission.CALL_PHONE}, PERMISSION_CODE);
+            }
+        } else {
+            // Permission is already granted, make the phone call
+            String phoneNumber = ((TextView) findViewById(R.id.numberTextView)).getText().toString();
+            Intent intent = new Intent(Intent.ACTION_CALL);
+            intent.setData(Uri.parse("tel:" + phoneNumber));
+            startActivity(intent);
+        }
     }
 
     // Handle the result from EditContactActivity
@@ -81,7 +161,7 @@ public class ViewDetailsActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == REQUEST_EDIT_CONTACT_CODE && resultCode == RESULT_OK) {
+        if (requestCode == 2 && resultCode == RESULT_OK) {
             // Contact edited successfully
             if (data != null) {
                 Contact updatedContact = data.getParcelableExtra("UPDATED_CONTACT");
