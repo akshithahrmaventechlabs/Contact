@@ -268,11 +268,12 @@ public class ContactListActivity extends AppCompatActivity implements ContactAda
 
 
 //
-////
-//////roomdata code
+////roomdata code
 //package com.akshitha.contact;
 //
+//import android.content.Context;
 //import android.content.Intent;
+//import android.content.SharedPreferences;
 //import android.os.Bundle;
 //import android.os.Handler;
 //import android.view.View;
@@ -281,14 +282,14 @@ public class ContactListActivity extends AppCompatActivity implements ContactAda
 //
 //import androidx.annotation.Nullable;
 //import androidx.appcompat.app.AppCompatActivity;
-//import androidx.lifecycle.ViewModelProvider;
+//import androidx.lifecycle.LiveData;
 //import androidx.recyclerview.widget.LinearLayoutManager;
 //import androidx.recyclerview.widget.RecyclerView;
+//import androidx.room.Room;
 //
 //import com.google.android.material.floatingactionbutton.FloatingActionButton;
 //import com.google.android.material.snackbar.Snackbar;
 //
-//import java.util.Collections;
 //import java.util.List;
 //
 //public class ContactListActivity extends AppCompatActivity implements ContactAdapter.OnItemClickListener {
@@ -298,48 +299,45 @@ public class ContactListActivity extends AppCompatActivity implements ContactAda
 //    private FloatingActionButton fabAddContact;
 //    private FloatingActionButton fabRefreshContact;
 //    private FloatingActionButton fabLogout;
-//    private List<ContactEntity> contacts;
+//    private LiveData<List<ContactEntity>> contacts;
 //    private static final int REQUEST_EDIT_CONTACT_CODE = 1;
 //
-//    private ContactViewModel contactViewModel;
+//    private static final String SHARED_PREFS_NAME = "MyPrefs";
+//    private static final String PREF_NAME = "MyPrefs";
+//    private static final String KEY_USERNAME = "username";
+//    private static final String KEY_FIRST_LOGIN = "firstLogin";
+//
+//    private AppDatabase appDatabase;
 //
 //    @Override
 //    protected void onCreate(Bundle savedInstanceState) {
 //        super.onCreate(savedInstanceState);
 //        setContentView(R.layout.contact_list_activity);
 //
-//        contactViewModel = new ViewModelProvider(this).get(ContactViewModel.class);
-//        contactViewModel.getAllContacts().observe(this, contactEntities -> {
-//            contacts = contactEntities;
-//            contactAdapter.setContacts(contacts);
-//        });
+//        // Initialize Room database
+//        appDatabase = Room.databaseBuilder(getApplicationContext(),
+//                AppDatabase.class, "contacts-database").build();
+//
+//        // Get the ContactDao from the database
+//        ContactDao contactDao = appDatabase.contactDao();
+//
+//        // Use LiveData to observe changes in the contact data
+//        contacts = contactDao.getAllContacts();
 //
 //        recyclerView = findViewById(R.id.recyclerViewContacts);
 //        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 //
-//        contactAdapter = new ContactAdapter(contacts, this);
-//        recyclerView.setAdapter(contactAdapter);
-//
-//        // Check if data is coming from HomePage
-//        if (getIntent().hasExtra("FIRST_NAME") && getIntent().hasExtra("LAST_NAME") && getIntent().hasExtra("PHONE_NUMBER")) {
-//            String firstName = getIntent().getStringExtra("FIRST_NAME");
-//            String lastName = getIntent().getStringExtra("LAST_NAME");
-//            String phoneNumber = getIntent().getStringExtra("PHONE_NUMBER");
-//
-//            ContactEntity newContact = new ContactEntity(firstName, lastName, phoneNumber);
-//            contactViewModel.insertContact(newContact);
-//
-//            // Sort contacts by first name
-//            Collections.sort(contacts, (contact1, contact2) ->
-//                    contact1.getFirstName().compareToIgnoreCase(contact2.getFirstName()));
-//
-//            contactAdapter.notifyDataSetChanged();
-//        } else {
-//            // No data from HomePage, handle as needed
-//        }
+//        // Update the way you handle contacts using LiveData
+//        contacts.observe(this, contactEntities -> {
+//            // Update your RecyclerView adapter with the new list of contactEntities
+//            if (contactEntities != null) {
+//                contactAdapter = new ContactAdapter(contactEntities, this);
+//                recyclerView.setAdapter(contactAdapter);
+//            }
+//        });
 //
 //        fabAddContact = findViewById(R.id.fabAddContact);
-//        fabAddContact.setOnClickListener(view -> showAddContactDialog());
+//        fabAddContact.setOnClickListener(view -> openHomePage());
 //
 //        fabRefreshContact = findViewById(R.id.fabrefreshtContact);
 //        fabRefreshContact.setOnClickListener(view -> refreshContactsWithBlink());
@@ -371,50 +369,53 @@ public class ContactListActivity extends AppCompatActivity implements ContactAda
 //        Snackbar.make(findViewById(android.R.id.content),
 //                        "Are you sure you want to log out?",
 //                        Snackbar.LENGTH_LONG)
-//                .setAction("Logout", v -> performLogout())
+//                .setAction("Logout", new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        performLogout();
+//                    }
+//                })
 //                .show();
 //    }
 //
 //    private void performLogout() {
-//        // Add your logout logic here
-//        // For example, clearing user data, navigating to the login screen, etc.
-//
-//        // Update the message at the top
 //        TextView textViewMessage = findViewById(R.id.textViewMessage);
 //        textViewMessage.setText("Logged out successfully");
 //        textViewMessage.setVisibility(View.VISIBLE);
 //
-//        // Clear user data
-//        // ...
+//        clearUserData();
 //
-//        // After logging out, navigate to the login screen
-//        // ...
+//        Intent intent = new Intent(ContactListActivity.this, MainActivity.class);
+//        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//        startActivity(intent);
+//    }
+//
+//    private void clearUserData() {
+//        SharedPreferences.Editor editor = getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE).edit();
+//        editor.remove(KEY_USERNAME);
+//        editor.remove(KEY_FIRST_LOGIN);
+//        editor.apply();
 //    }
 //
 //    private void refreshContactsWithBlink() {
-//        // Add a blinking effect by toggling visibility with a delay
 //        blinkView(findViewById(android.R.id.content));
-//
-//        // Reload contacts from Room database
-//        // (The LiveData observer will automatically update the UI)
-//        // ...
+//        // No need to reload contacts, LiveData handles updates automatically
 //    }
 //
 //    private void blinkView(View view) {
-//        // Toggle visibility with a delay for a blinking effect
 //        view.setVisibility(View.INVISIBLE);
-//
-//        new Handler().postDelayed(() -> view.setVisibility(View.VISIBLE), 100); // 100 milliseconds (0.1 second) delay
+//        new Handler().postDelayed(() -> view.setVisibility(View.VISIBLE), 100);
 //    }
 //
-//    private void showAddContactDialog() {
-//        // Implement the logic for adding a new contact using a dialog
-//        // ...
+//    private void openHomePage() {
+//        // No need to manually save contacts, LiveData handles updates automatically
+//        Intent intent = new Intent(this, HomePage.class);
+//        startActivity(intent);
 //    }
 //
 //    @Override
 //    public void onItemClick(int position) {
-//        ContactEntity selectedContact = contacts.get(position);
+//        ContactEntity selectedContact = contacts.getValue().get(position);
 //        Intent intent = new Intent(ContactListActivity.this, ViewDetailsActivity.class);
 //        intent.putExtra("CONTACT_FIRST_NAME", selectedContact.getFirstName());
 //        intent.putExtra("CONTACT_LAST_NAME", selectedContact.getLastName());
@@ -422,42 +423,31 @@ public class ContactListActivity extends AppCompatActivity implements ContactAda
 //        startActivity(intent);
 //    }
 //
-//    // This method handles the result returned from EditContactActivity
 //    @Override
 //    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 //        super.onActivityResult(requestCode, resultCode, data);
 //
 //        if (requestCode == REQUEST_EDIT_CONTACT_CODE && resultCode == RESULT_OK) {
 //            if (data != null) {
-//                // Extract updated contact data
-//                ContactEntity updatedContactEntity = data.getParcelableExtra("UPDATED_CONTACT");
-//
-//                // Update your contact list or database with the updated contact
-//                // For example, update the contact at its position in the list
-//                int position = findContactPosition(updatedContactEntity);
+//                ContactEntity updatedContact = data.getParcelableExtra("UPDATED_CONTACT");
+//                int position = findContactPosition(updatedContact);
 //                if (position != -1) {
-//                    contacts.set(position, updatedContactEntity);
-//
-//                    // Notify your adapter if using RecyclerView
-//                    contactAdapter.notifyItemChanged(position);
-//
-//                    // Save the updated contacts list
-//                    contactViewModel.updateContact(updatedContactEntity);
+//                    // Room handles updates automatically, no need to manually update the list
 //                }
 //            }
 //        }
 //    }
 //
 //    private int findContactPosition(ContactEntity targetContact) {
-//        for (int i = 0; i < contacts.size(); i++) {
-//            ContactEntity currentContact = contacts.get(i);
-//            if (currentContact.equals(targetContact)) {
-//                return i;  // Return the position if the contact is found
+//        List<ContactEntity> contactList = contacts.getValue();
+//        if (contactList != null) {
+//            for (int i = 0; i < contactList.size(); i++) {
+//                ContactEntity currentContact = contactList.get(i);
+//                if (currentContact.getId() == targetContact.getId()) {
+//                    return i;
+//                }
 //            }
 //        }
-//        return -1; // Return -1 if the contact is not found
+//        return -1;
 //    }
 //}
-//
-//
-//
